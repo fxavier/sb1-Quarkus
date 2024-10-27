@@ -1,0 +1,83 @@
+quarkus:
+  application:
+    name: ecommerce-api
+  
+  http:
+    port: 8080
+    cors:
+      ~: true
+      origins: "*"
+      methods: GET,POST,PUT,DELETE,OPTIONS
+      headers: accept,authorization,content-type,x-requested-with
+  
+  # Flyway Configuration
+  flyway:
+    migrate-at-start: true
+    baseline-on-migrate: true
+    baseline-version: 0.0.0
+    baseline-description: Initial version
+    # Dev profile specific Flyway config
+    '%dev':
+      clean-at-start: true
+    # Prod profile specific Flyway config
+    '%prod':
+      clean-at-start: false
+  
+  # Database Configuration
+  datasource:
+    db-kind: postgresql
+    jdbc: true  # Enable JDBC for Flyway
+    '%dev':
+      username: postgres
+      password: postgres
+      jdbc:
+        url: jdbc:postgresql://localhost:5432/ecommerce
+      reactive:
+        url: vertx-reactive:postgresql://localhost:5432/ecommerce
+    '%prod':
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+      jdbc:
+        url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      reactive:
+        url: vertx-reactive:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+  
+  # Hibernate Configuration
+  hibernate-orm:
+    database:
+      generation: none  # Disable automatic schema generation
+    '%dev':
+      log:
+        sql: true
+        bind-parameters: true
+    '%prod':
+      log:
+        sql: false
+  
+  # Rest of the configuration remains the same
+  security:
+    users:
+      embedded:
+        enabled: true
+        plain-text: true
+  
+  smallrye-jwt:
+    enabled: true
+    new-token:
+      signature-algorithm: RS256
+      lifespan: 86400
+  
+  micrometer:
+    export:
+      prometheus:
+        enabled: true
+    registry-enabled: prometheus
+  
+  log:
+    handler:
+      gelf:
+        enabled: true
+        host: localhost
+        port: 12201
+
+# Rest of the application-specific configuration remains the same
